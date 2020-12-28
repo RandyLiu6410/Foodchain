@@ -1,0 +1,18 @@
+{
+  "name": "projectd",
+  "version": "1.0.0",
+  "description": "Accessing Blockchian Events",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Randy Liu",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "quorum-js": "^0.3.6",
+    "web3": "^1.3.0"
+  }
+}
