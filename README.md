@@ -28,5 +28,6 @@ NODE3=http://foodchain-node3.etherhost.org:22003
 > install yarn: https://classic.yarnpkg.com/lang/en/
 
 path: '/App'
-- Step 1: `yarn install`
-- Step 2: `yarn start`
+- Step 1: `cd App`
+- Step 2: `yarn install`
+- Step 3: `yarn start`
