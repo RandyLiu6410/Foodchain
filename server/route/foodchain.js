@@ -4,12 +4,16 @@ const Web3 = require('web3');
 const quorumjs = require('quorum-js');
 const web3 = new Web3(process.env.NODE3);
 quorumjs.extend(web3);
-const acc = web3.eth.accounts.privateKeyToAccount('c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3');
+const acc = web3.eth.accounts.privateKeyToAccount('0xab09158d9a817633c28c74b6e6c1bf34c26ffadc1a961870beaeef38b0753495');
 web3.eth.accounts.wallet.add(acc);
 
 var abi = require('../food3.json');
 const contract = new web3.eth.Contract(abi, '0xA4fafbE0ea4823e262b4916EF93CC5A6306A5DBc');
 
+// input: logorg, output: logno[]
+
+
+// input: logno, output: allevents
 router.route('/').get((req, res) => {
     contract.getPastEvents("allEvents",
         {                               
@@ -27,6 +31,11 @@ router.route('/').get((req, res) => {
     .catch((err) => console.error(err));
 });
 
+// FoodLog
+
+// FoodLogImage
+
+// FoodLogSection
 router.route('/').post(async (req, res) => {
     await contract.methods.FoodLogSection(parseInt(req.query.logno), req.query.title, req.query.begin, req.query.end)
     .send({from: web3.eth.accounts.wallet[0].address, gas: 28455}, (err, result) => {res.json(result)})

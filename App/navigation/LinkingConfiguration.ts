@@ -6,14 +6,14 @@ export default {
     screens: {
       Root: {
         screens: {
-          TabOne: {
+          Upload: {
             screens: {
-              TabOneScreen: 'one',
+              UploadScreen: 'one',
             },
           },
-          TabTwo: {
+          Event: {
             screens: {
-              TabTwoScreen: 'two',
+              EventScreen: 'two',
             },
           },
         },
