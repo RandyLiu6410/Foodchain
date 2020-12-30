@@ -10,6 +10,8 @@ import CameraScreen from '../screens/CameraScreen';
 import EventScreen from '../screens/EventScreen';
 import { BottomTabParamList, UploadParamList, EventParamList } from '../types';
 
+import { PhotoContext } from '../services/PhotoContext';
+
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function BottomTabNavigator() {
@@ -48,19 +50,23 @@ function TabBarIcon(props: { name: string; color: string }) {
 const UploadStack = createStackNavigator<UploadParamList>();
 
 function UploadNavigator() {
+  const [context, setContext] = React.useState(null);
+
   return (
-    <UploadStack.Navigator>
-      <UploadStack.Screen
-        name="UploadScreen"
-        component={UploadScreen}
-        options={{ headerTitle: 'Upload' }}
-      />
-      <UploadStack.Screen
-        name="CameraScreen"
-        component={CameraScreen}
-        options={{ headerTitle: 'Camera' }}
-      />
-    </UploadStack.Navigator>
+    <PhotoContext.Provider value={[context, setContext]}>
+      <UploadStack.Navigator>
+        <UploadStack.Screen
+          name="UploadScreen"
+          component={UploadScreen}
+          options={{ headerTitle: 'Upload' }}
+        />
+        <UploadStack.Screen
+          name="CameraScreen"
+          component={CameraScreen}
+          options={{ headerTitle: 'Camera' }}
+        />
+      </UploadStack.Navigator>
+    </PhotoContext.Provider>
   );
 }
 

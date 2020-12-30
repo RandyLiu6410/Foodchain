@@ -1,6 +1,7 @@
 import * as React from 'react';
 import moment from 'moment';
-import { StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { TextInputMask } from 'react-native-masked-text';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Camera } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
@@ -14,10 +15,14 @@ import { PhotoContext } from '../services/PhotoContext';
 
 export default function UploadScreen() {
   const navigation = useNavigation();
-  const [log, setLog] = React.useState('');
+  const [context, setContext] = React.useContext(PhotoContext);
   const [hasPermission, setHasPermission] = React.useState(false);
+  const [log, setLog] = React.useState('');
+  const [title, setTitle] = React.useState('');
   const [end, setEnd] = React.useState('');
+  const [dateValid, setDateValid] = React.useState(true);
   const begin = moment().format('YYYY/MM/DD h:mm:ss');
+  var datetimeFieldRef = null;
 
   React.useEffect(() => {
     (async () => {
@@ -32,6 +37,12 @@ export default function UploadScreen() {
     navigation.navigate('CameraScreen');
   }
 
+  const upload = () => {
+    setDateValid(datetimeFieldRef.isValid());
+    if(!datetimeFieldRef.isValid()) return;
+
+  }
+
   if (hasPermission === null) {
     return <View />;
   }
@@ -39,8 +50,9 @@ export default function UploadScreen() {
     return <Text>No access to camera</Text>;
   }
   return (
-    <PhotoContext.Consumer>
-    {photo => (
+    <KeyboardAvoidingView
+      behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
+      style={styles.container}>
       <View style={styles.container}>
         <Text style={styles.title}>Log</Text>
         <DropDownPicker
@@ -60,8 +72,8 @@ export default function UploadScreen() {
         />
         <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
         {
-          photo ? 
-          <PreviewImage photo={photo} savePhoto={__savePhoto} retakePicture={__retakePicture} /> 
+          context ? 
+          <PreviewImage photo={context} savePhoto={__savePhoto} retakePicture={__retakePicture} /> 
           :
           <TouchableOpacity
             style={styles.button}
@@ -69,19 +81,30 @@ export default function UploadScreen() {
             <Ionicons size={100} style={styles.icon} name="camera-outline" />
           </TouchableOpacity>
         }
-        <TextInput style={styles.textInput} placeholder="title"/>
         <View style={styles.dateContainer}>
+          <TextInput style={styles.textInput} placeholder="title" value={title} onChangeText={text => setTitle(text)}/>
           <Text>{begin}</Text>
           <Text>To</Text>
-          <Text>2020/12/31 15:50:40</Text>
+          <TextInputMask
+            type={'datetime'}
+            options={{
+              format: 'YYYY/MM/DD HH:mm:ss'
+            }}
+            value={end}
+            onChangeText={text => setEnd(text)}
+            style={styles.textInput}
+            ref={(ref) => datetimeFieldRef = ref}
+          />
+          {
+            dateValid ? <View /> : <Text>Date formate is wrong</Text>
+          }
         </View>
-        <TouchableOpacity style={styles.uploadButton}>
+        <TouchableOpacity style={styles.uploadButton} onPress={upload}>
           <Text style={styles.text}>Upload</Text>
         </TouchableOpacity>
         {/* <EditScreenInfo path="/screens/UploadScreen.tsx" /> */}
       </View>
-    )}
-    </PhotoContext.Consumer>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -117,6 +140,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     height: 30,
+    width: 300,
     borderColor: 'gray',
     borderRadius: 10,
     borderWidth: 1,

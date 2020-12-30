@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, ImageBackground } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 export default function PreviewImage({photo, retakePicture, savePhoto}: any) {
     return (
         <View
-          style={styles.container}
+          style={photo.width > photo.height ? styles.container_h : styles.container_v}
         >
           <ImageBackground
             source={{uri: photo && photo.uri}}
@@ -20,21 +21,13 @@ export default function PreviewImage({photo, retakePicture, savePhoto}: any) {
                   onPress={retakePicture}
                   style={styles.button}
                 >
-                  <Text
-                    style={styles.text}
-                  >
-                    Re-take
-                  </Text>
+                  <MaterialCommunityIcons name="replay" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={savePhoto}
                   style={styles.button}
                 >
-                  <Text
-                    style={styles.text}
-                  >
-                    save photo
-                  </Text>
+                  <MaterialCommunityIcons name="download" size={24} color="white" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -44,33 +37,43 @@ export default function PreviewImage({photo, retakePicture, savePhoto}: any) {
 }
 
 const styles = StyleSheet.create({
-    container: {
+    container_v: {
         backgroundColor: 'transparent',
         flex: 1,
-        width: '100%',
-        height: '100%'
+        maxWidth: 200,
+        maxHeight: 400,
+        alignSelf: 'center',
+    },
+    container_h: {
+        backgroundColor: 'transparent',
+        flex: 1,
+        maxWidth: 400,
+        maxHeight: 200,
     },
     imageBackground: {
-        flex: 1
+        flex: 1,
+        resizeMode: "contain",
+        justifyContent: "center",
     },
     textContainer: {
         flex: 1,
         flexDirection: 'column',
-        padding: 15,
-        justifyContent: 'flex-end'
+        marginTop: 25,
+        justifyContent: 'flex-end',
+        width: '100%'
     },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
     button: {
-        width: 130,
+        width: 100,
         height: 40,
         alignItems: 'center',
         borderRadius: 4
     },
     text: {
         color: '#fff',
-        fontSize: 20
+        fontSize: 25,
     },
   });

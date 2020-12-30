@@ -29,7 +29,7 @@ export default function CameraScreen() {
     if (!camera) return;
     const photo = await camera.takePictureAsync();
     setCapturedImage(photo);
-    setContext({image: photo})
+    setContext(photo);
     navigation.goBack();
   }
 
