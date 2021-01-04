@@ -15,7 +15,7 @@ const contract = new web3.eth.Contract(abi, '0xA4fafbE0ea4823e262b4916EF93CC5A63
 
 // input: logno, output: allevents
 router.route('/').get((req, res) => {
-    contract.getPastEvents("allEvents",
+    contract.getPastEvents("FoodContent",
         {                               
             fromBlock: req.query.START_BLOCK,     
             toBlock: 'latest'        
