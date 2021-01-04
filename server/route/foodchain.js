@@ -12,8 +12,7 @@ const contract = new web3.eth.Contract(abi, '0xA4fafbE0ea4823e262b4916EF93CC5A63
 // get
 // input: logorg, output: logno[]
 router.route('/logno').get((req, res) => {
-    // console.log(req);
-    contract.getPastEvents("allEvents",
+    contract.getPastEvents("FoodContent",
         {                               
             fromBlock: req.query.START_BLOCK,     
             toBlock: 'latest'        
@@ -21,9 +20,11 @@ router.route('/logno').get((req, res) => {
     .then(events => {
         const result = events.filter(e => e.returnValues['logorg'] === req.query.logorg);
         const lognos = [];
-        console.log(result.length)
         result.forEach(function(item) {
-            lognos.push(item.returnValues['logno']);
+            if(!lognos.includes(item.returnValues['logno']))
+            {
+                lognos.push(item.returnValues['logno']);
+            }
         });
         if(lognos){
             res.json(lognos);
@@ -36,17 +37,15 @@ router.route('/logno').get((req, res) => {
 
 // input: logno, output: FoodContent
 router.route('/foodcontent').get((req, res) => {
-    web3.eth.getBlockNumber().then(console.log);
-    LAST_BLOCK = web3.eth.getBlockNumber();
     contract.getPastEvents("FoodContent",
         {                               
+            filter: {logno: req.query.logno},
             fromBlock: req.query.START_BLOCK,     
             toBlock: "latest"        
         })                              
     .then(events => {
-        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
-        if(result){
-            res.json(result);
+        if(events){
+            res.json(events);
         }else {
             res.json('no result');
         }
@@ -56,17 +55,15 @@ router.route('/foodcontent').get((req, res) => {
 
 // input: logno, output: FoodImage
 router.route('/foodimage').get((req, res) => {
-    web3.eth.getBlockNumber().then(console.log);
-    LAST_BLOCK = web3.eth.getBlockNumber();
     contract.getPastEvents("FoodImage",
         {                               
+            filter: {logno: req.query.logno},
             fromBlock: req.query.START_BLOCK,     
             toBlock: "latest"        
         })                              
     .then(events => {
-        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
-        if(result){
-            res.json(result);
+        if(events){
+            res.json(events);
         }else {
             res.json('no result');
         }
@@ -76,17 +73,15 @@ router.route('/foodimage').get((req, res) => {
 
 // input: logno, output: FoodImageReplace
 router.route('/foodimagereplace').get((req, res) => {
-    web3.eth.getBlockNumber().then(console.log);
-    LAST_BLOCK = web3.eth.getBlockNumber();
     contract.getPastEvents("FoodImageReplace",
         {                               
+            filter: {logno: req.query.logno},
             fromBlock: req.query.START_BLOCK,     
             toBlock: "latest"        
         })                              
     .then(events => {
-        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
-        if(result){
-            res.json(result);
+        if(events){
+            res.json(events);
         }else {
             res.json('no result');
         }
@@ -96,17 +91,15 @@ router.route('/foodimagereplace').get((req, res) => {
 
 // input: logno, output: FoodItem
 router.route('/fooditem').get((req, res) => {
-    web3.eth.getBlockNumber().then(console.log);
-    LAST_BLOCK = web3.eth.getBlockNumber();
     contract.getPastEvents("FoodItem",
         {                               
+            filter: {logno: req.query.logno},
             fromBlock: req.query.START_BLOCK,     
             toBlock: "latest"        
         })                              
     .then(events => {
-        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
-        if(result){
-            res.json(result);
+        if(events){
+            res.json(events);
         }else {
             res.json('no result');
         }
@@ -116,17 +109,15 @@ router.route('/fooditem').get((req, res) => {
 
 // input: logno, output: FoodSection
 router.route('/foodsection').get((req, res) => {
-    web3.eth.getBlockNumber().then(console.log);
-    LAST_BLOCK = web3.eth.getBlockNumber();
     contract.getPastEvents("FoodSection",
         {                               
+            filter: {logno: req.query.logno},
             fromBlock: req.query.START_BLOCK,     
             toBlock: "latest"        
         })                              
     .then(events => {
-        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
-        if(result){
-            res.json(result);
+        if(events){
+            res.json(events);
         }else {
             res.json('no result');
         }
@@ -136,17 +127,15 @@ router.route('/foodsection').get((req, res) => {
 
 // input: logno, output: allevents
 router.route('/allevents').get((req, res) => {
-    web3.eth.getBlockNumber().then(console.log);
-    LAST_BLOCK = web3.eth.getBlockNumber();
     contract.getPastEvents("allEvents",
-        {                               
+        {                            
+            filter: {logno: req.query.logno},   
             fromBlock: req.query.START_BLOCK,     
             toBlock: "latest"        
         })                              
     .then(events => {
-        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
-        if(result){
-            res.json(result);
+        if(events){
+            res.json(events);
         }else {
             res.json('no result');
         }
