@@ -34,6 +34,106 @@ router.route('/logno').get((req, res) => {
     .catch((err) => console.error(err));
 });
 
+// input: logno, output: FoodContent
+router.route('/foodcontent').get((req, res) => {
+    web3.eth.getBlockNumber().then(console.log);
+    LAST_BLOCK = web3.eth.getBlockNumber();
+    contract.getPastEvents("FoodContent",
+        {                               
+            fromBlock: req.query.START_BLOCK,     
+            toBlock: "latest"        
+        })                              
+    .then(events => {
+        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
+        if(result){
+            res.json(result);
+        }else {
+            res.json('no result');
+        }
+    })
+    .catch((err) => console.error(err));
+});
+
+// input: logno, output: FoodImage
+router.route('/foodimage').get((req, res) => {
+    web3.eth.getBlockNumber().then(console.log);
+    LAST_BLOCK = web3.eth.getBlockNumber();
+    contract.getPastEvents("FoodImage",
+        {                               
+            fromBlock: req.query.START_BLOCK,     
+            toBlock: "latest"        
+        })                              
+    .then(events => {
+        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
+        if(result){
+            res.json(result);
+        }else {
+            res.json('no result');
+        }
+    })
+    .catch((err) => console.error(err));
+});
+
+// input: logno, output: FoodImageReplace
+router.route('/foodimagereplace').get((req, res) => {
+    web3.eth.getBlockNumber().then(console.log);
+    LAST_BLOCK = web3.eth.getBlockNumber();
+    contract.getPastEvents("FoodImageReplace",
+        {                               
+            fromBlock: req.query.START_BLOCK,     
+            toBlock: "latest"        
+        })                              
+    .then(events => {
+        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
+        if(result){
+            res.json(result);
+        }else {
+            res.json('no result');
+        }
+    })
+    .catch((err) => console.error(err));
+});
+
+// input: logno, output: FoodItem
+router.route('/fooditem').get((req, res) => {
+    web3.eth.getBlockNumber().then(console.log);
+    LAST_BLOCK = web3.eth.getBlockNumber();
+    contract.getPastEvents("FoodItem",
+        {                               
+            fromBlock: req.query.START_BLOCK,     
+            toBlock: "latest"        
+        })                              
+    .then(events => {
+        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
+        if(result){
+            res.json(result);
+        }else {
+            res.json('no result');
+        }
+    })
+    .catch((err) => console.error(err));
+});
+
+// input: logno, output: FoodSection
+router.route('/foodsection').get((req, res) => {
+    web3.eth.getBlockNumber().then(console.log);
+    LAST_BLOCK = web3.eth.getBlockNumber();
+    contract.getPastEvents("FoodSection",
+        {                               
+            fromBlock: req.query.START_BLOCK,     
+            toBlock: "latest"        
+        })                              
+    .then(events => {
+        const result = events.filter(e => e.returnValues['logno'] === req.query.logno);
+        if(result){
+            res.json(result);
+        }else {
+            res.json('no result');
+        }
+    })
+    .catch((err) => console.error(err));
+});
+
 // input: logno, output: allevents
 router.route('/allevents').get((req, res) => {
     web3.eth.getBlockNumber().then(console.log);
