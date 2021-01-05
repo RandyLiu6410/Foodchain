@@ -211,16 +211,19 @@ router.route('/foodlog').post(async (req, res) => {
                     newFood.save()
                     .then(() => {
                         res.status(200);
+                        console.log(receipt);
                         res.json(receipt);
                     })
                     .catch((err) => {
                         res.status(400);
+                        console.log(err);
                         res.json(err);
                     });
                 }
             })
             .catch((err) => {
                 res.status(400);
+                console.log(err);
                 res.json(err);
             })
         })
