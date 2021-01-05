@@ -1,4 +1,5 @@
 const router = require('express').Router();
+let Food = require('../model/food.model');
 
 const Web3 = require('web3');
 const quorumjs = require('quorum-js');
@@ -168,7 +169,40 @@ router.route('/foodlog').post(async (req, res) => {
     web3.eth.accounts.signTransaction(tx, PRIVATE_KEY)
     .then(signed => {
         web3.eth.sendSignedTransaction(signed.rawTransaction)
-        .on('receipt', (receipt) => res.json(receipt))
+        .on('receipt', (receipt) => {
+            const newFood = new Food({
+                logno: parseInt(req.query.logno),
+                section: [],
+                logname: req.query.logname,
+                logorg: req.query.logorg,
+                logdate: req.query.logdate,
+            });
+
+            Food.findOne({logno: parseInt(req.query.logno)})
+            .then((result) => {
+                if(result)
+                {
+                    res.status(400);
+                    res.json('User exists');
+                }
+                else
+                {
+                    newFood.save()
+                    .then(() => {
+                        res.status(200);
+                        res.json(receipt);
+                    })
+                    .catch((err) => {
+                        res.status(400);
+                        res.json(err);
+                    });
+                }
+            })
+            .catch((err) => {
+                res.status(400);
+                res.json(err);
+            })
+        })
         .catch((err) => res.json(err));
     })
     .catch((err) => res.json(err));
@@ -241,6 +275,85 @@ router.route('/foodlogsection').post(async (req, res) => {
     // .on('confirmation', function (confirmationNumber, receipt) {
     //     res.json(receipt);
     // })
+});
+
+// logno, title, begin, end, url, urlhash, filehash
+router.route('/newfoodlogsection').post(async (req, res) => {
+    var responce = [];
+    var error = [];
+
+    var encoded_data1 = contract.methods.FoodLogSection(parseInt(req.query.logno), req.query.title, req.query.begin, req.query.end).encodeABI();
+    const accountNonce1 = '0x' + (web3.eth.getTransactionCount(ACCOUNT_ADDRESS) + 1).toString(16);
+    
+    var tx1 = {
+        nouce: accountNonce1,
+        from: ACCOUNT_ADDRESS,
+        to: CONTRACT_ADDRESS,
+        gas: 238960,
+        data: encoded_data1,
+    }
+
+    web3.eth.accounts.signTransaction(tx1, PRIVATE_KEY)
+    .then(signed => {
+        web3.eth.sendSignedTransaction(signed.rawTransaction)
+        .on('receipt', (receipt) => {
+            responce.push(receipt);
+
+            var encoded_data2 = contract.methods.FoodLogImage(parseInt(req.query.logno), req.query.urlhash, req.query.filehash).encodeABI();
+            const accountNonce2 = '0x' + (web3.eth.getTransactionCount(ACCOUNT_ADDRESS) + 1).toString(16);
+            
+            var tx2 = {
+                nouce: accountNonce2,
+                from: ACCOUNT_ADDRESS,
+                to: CONTRACT_ADDRESS,
+                gas: 238960,
+                data: encoded_data2,
+            }
+        
+            web3.eth.accounts.signTransaction(tx2, PRIVATE_KEY)
+            .then(signed => {
+                web3.eth.sendSignedTransaction(signed.rawTransaction)
+                .on('receipt', (receipt) => {
+                    responce.push(receipt);
+
+                    Food.updateOne(
+                        { logno: parseInt(req.query.logno) }, 
+                        { $push: { section: {
+                            title: req.query.title,
+                            begin: req.query.begin,
+                            end: req.query.end,
+                            url: req.query.url,
+                        } } },
+                        () => {
+                            res.status(200);
+                            console.log(responce);
+                            res.json(responce);
+                        }
+                    );
+                })
+                .catch((err) => {
+                    res.status(400);
+                    console.log(error);
+                    res.json(error);
+                });
+            })
+            .catch((err) => {
+                res.status(400);
+                console.log(error);
+                res.json(error);
+            });
+        })
+        .catch((err) => {
+            res.status(400);
+            console.log(error);
+            res.json(error);
+        });
+    })
+    .catch((err) => {
+        res.status(400);
+        console.log(error);
+        res.json(error);
+    });
 });
 
 module.exports = router;
