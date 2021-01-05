@@ -115,6 +115,27 @@ router.route('/fooditem').get((req, res) => {
 });
 
 // input: logno, output: FoodSection
+router.route('/newfoodsection').get((req, res) => {
+    Food.findOne({logno: parseInt(req.query.logno)})
+    .then((result) => {
+        if(result)
+        {
+            res.status(200);
+            res.json(result);
+        }
+        else
+        {
+            res.status(400);
+            res.json('No result');
+        }
+    })
+    .catch((err) => {
+        res.status(400);
+        res.json(err);
+    })
+});
+
+// input: logno, output: FoodSection
 router.route('/foodsection').get((req, res) => {
     contract.getPastEvents("FoodSection",
         {                               
