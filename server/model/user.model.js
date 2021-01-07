@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
     username: {type: String, require: true},
     password: {type: String, require: true},
-    logorg: {type: Number, require: true},
+    logorg: {type: String, require: true},
     },
     { timestamps: true }
   );
