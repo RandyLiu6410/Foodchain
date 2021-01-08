@@ -3,7 +3,7 @@ let Food = require('../model/food.model');
 
 const Web3 = require('web3');
 const quorumjs = require('quorum-js');
-const web3 = new Web3(process.env.NODE1);
+const web3 = new Web3(process.env.NODE2);
 quorumjs.extend(web3);
 
 const CONTRACT_ADDRESS = "0xA4fafbE0ea4823e262b4916EF93CC5A6306A5DBc"
