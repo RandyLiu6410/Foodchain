@@ -46,7 +46,7 @@ export default function EventScreen() {
         }}
         dropDownStyle={{backgroundColor: '#fafafa'}}
         onChangeItem={item => {
-          fetch(`http://54.226.5.241:5000/foodchain/newfoodsection?logno=${item.value}`)
+          fetch(`http://54.226.5.241:5000/foodchain/newfoodsection?logno=${item.value}&START_BLOCK=0`)
           .then((res) => res.json())
           .then(data => {
             setSection(data);

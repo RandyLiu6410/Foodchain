@@ -3,7 +3,7 @@ let Food = require('../model/food.model');
 const crypto = require('crypto');
 const Web3 = require('web3');
 const quorumjs = require('quorum-js');
-const web3 = new Web3(process.env.NODE2);
+const web3 = new Web3(process.env.NODE3);
 const keccak = require('keccak');
 quorumjs.extend(web3);
 
@@ -70,11 +70,7 @@ router.route('/foodimage').get((req, res) => {
 			toBlock: "latest"        
 		})                              
 	.then(events => {
-		if(events.length != 0){
-			res.json(events);
-		}else {
-			res.json('no result');
-		}
+		res.json(events);
 	})
 	.catch((err) => console.error(err));
 });
@@ -245,7 +241,6 @@ router.route('/newfoodimage').get((req, res) => {
 				{
 					console.log("#foodimage on chain:", events.length);
 					console.log("#foodimage in DB:", result.image.length);
-					res.json(result.image);
 					if(events.length == result.image.length)
 					{
 						console.log("#image in DB and on chain is equal.");
@@ -374,79 +369,158 @@ router.route('/newfooditem').get((req, res) => {
 });
 
 // input: logno, output: FoodSection
-router.route('/newfoodsection').get((req, res) => {
+router.route('/newfoodsection').get(async (req, res) => {
 	//data on chain: events
-	contract.getPastEvents("FoodSection",
-	{                               
-		filter: {logno: req.query.logno},
-		fromBlock: req.query.START_BLOCK,     
-		toBlock: "latest"        
-	})                           
-	.then(events => {
-		if(events.length != 0)
-		{
-			Food.findOne({logno: parseInt(req.query.logno)})
-			.then((result) => {
-				if(result.section.length != 0)
-				{
-					// console.log("#foodsection on chain:", events.length);
-					// console.log("#foodsection in DB:", result.section.length);
-					if(events.length == result.section.length)
-					{
-						console.log("#section in DB and on chain is equal.");
-						var validated = 1;
-						for(var i = 0; i < events.length; i++)
-						{ 
-							const begin_hash_db = '0x'+keccak('keccak256').update(result.section[i].begin).digest('hex');
-							const end_hash_db = '0x'+keccak('keccak256').update(result.section[i].end).digest('hex');
-							console.log('title_DB:', result.section[i].title);
-							console.log('title_OC:', events[i].returnValues.title);
-							console.log('begin_hash_DB:', begin_hash_db);
-							console.log('begin_hash_OC:', events[i].returnValues.begin);
-							console.log('end_hash_DB:', end_hash_db);
-							console.log('end_hash_OC:', events[i].returnValues.end);
-							if(begin_hash_db != events[i].returnValues.begin || end_hash_db != events[i].returnValues.end
-								|| result.section[i].title != events[i].returnValues.title)
-							{
-								console.log('data in DB and on chain are inconsistent!');
-								validated = 0;
-								res.status(400);
-								res.json('data in DB and on chain are inconsistent!');
-								break;
-							}
-						}
-						if(validated)
-						{
-							console.log('data in DB and on chain are consistent.');
-							res.status(200);
-							res.json(result.section);
-						}
-					}
-					else
-					{
-						console.log("#section in DB and on chain isn't equal.");
-						res.status(400);
-						res.json("#section in DB and on chain isn't equal.");
-					}
-				}
-				else
-				{
-					res.status(400);
-					res.json("logno's section doesn't exist in DB");
-				}
-			})
-			.catch((err) => {
-				res.status(400);
-				res.json(err);
-			})
-		}
-		else
-		{
+	try {
+		const foodsectionEvents = await contract.getPastEvents("FoodSection",
+		{                               
+			filter: {logno: req.query.logno},
+			fromBlock: req.query.START_BLOCK,     
+			toBlock: "latest"        
+		});
+		const foodimageEvents = await contract.getPastEvents("FoodImage",
+		{                               
+			filter: {logno: req.query.logno},
+			fromBlock: req.query.START_BLOCK,     
+			toBlock: "latest"        
+		});
+
+		if(foodsectionEvents.length === 0 || foodimageEvents === 0) {
 			res.status(400);
 			res.json("logno's section doesn't exist on chain");
+			return;
 		}
-	})
-	.catch((err) => console.error(err));
+
+		const foodsectionDB = await Food.findOne({logno: parseInt(req.query.logno)});
+		console.log(foodsectionEvents.length)
+
+		if(foodsectionDB.section.length !== 0) {
+			if(foodsectionEvents.length === foodsectionDB.section.length && foodimageEvents.length === foodsectionDB.section.length)
+			{
+				console.log("#section in DB and on chain is equal.");
+				var validated = 1;
+				for(var i = 0; i < events.length; i++)
+				{ 
+					const begin_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].begin).digest('hex');
+					const end_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].end).digest('hex');
+					const urlhash_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].urlhash).digest('hex');
+					const filehash_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].filehash).digest('hex');
+					console.log('title_DB:', foodsectionDB.section[i].title);
+					console.log('title_OC:', foodsectionEvents[i].returnValues.title);
+					console.log('begin_hash_DB:', begin_hash_db);
+					console.log('begin_hash_OC:', foodsectionEvents[i].returnValues.begin);
+					console.log('end_hash_DB:', end_hash_db);
+					console.log('end_hash_OC:', foodsectionEvents[i].returnValues.end);
+					console.log('urlhash_hash_db:', urlhash_hash_db);
+					console.log('urlhash_hash_OC:', foodimageEvents[i].returnValues.url);
+					console.log('filehash_hash_db:', filehash_hash_db);
+					console.log('filehash_hash_OC:', foodimageEvents[i].returnValues.filehash);
+					if(begin_hash_db != foodsectionEvents[i].returnValues.begin || end_hash_db != foodsectionEvents[i].returnValues.end
+						|| foodsectionDB.section[i].title != foodsectionEvents[i].returnValues.title || urlhash_hash_db != foodimageEvents[i].returnValues.url || filehash_hash_db != foodimageEvents[i].returnValues.filehash)
+					{
+						console.log('data in DB and on chain are inconsistent!');
+						validated = 0;
+						res.status(400);
+						res.json('data in DB and on chain are inconsistent!');
+						break;
+					}
+				}
+				if(validated)
+				{
+					console.log('data in DB and on chain are consistent.');
+					res.status(200);
+					res.json(result.section);
+				}
+			}
+			else
+			{
+				console.log("#section in DB and on chain isn't equal.");
+				res.status(400);
+				res.json("#section in DB and on chain isn't equal.");
+			}
+		}
+		else {
+			res.status(400);
+			res.json("logno's section doesn't exist in DB");
+			return;
+		}
+	}
+	catch (err) {
+		res.status(400);
+		res.json(err);
+	}
+
+	// contract.getPastEvents("FoodSection",
+	// {                               
+	// 	filter: {logno: req.query.logno},
+	// 	fromBlock: req.query.START_BLOCK,     
+	// 	toBlock: "latest"        
+	// })                           
+	// .then(events => {
+	// 	if(events.length != 0)
+	// 	{
+	// 		Food.findOne({logno: parseInt(req.query.logno)})
+	// 		.then((result) => {
+	// 			if(result.section.length != 0)
+	// 			{
+	// 				// console.log("#foodsection on chain:", events.length);
+	// 				// console.log("#foodsection in DB:", result.section.length);
+	// 				if(events.length == result.section.length)
+	// 				{
+	// 					console.log("#section in DB and on chain is equal.");
+	// 					var validated = 1;
+	// 					for(var i = 0; i < events.length; i++)
+	// 					{ 
+	// 						const begin_hash_db = '0x'+keccak('keccak256').update(result.section[i].begin).digest('hex');
+	// 						const end_hash_db = '0x'+keccak('keccak256').update(result.section[i].end).digest('hex');
+	// 						console.log('title_DB:', result.section[i].title);
+	// 						console.log('title_OC:', events[i].returnValues.title);
+	// 						console.log('begin_hash_DB:', begin_hash_db);
+	// 						console.log('begin_hash_OC:', events[i].returnValues.begin);
+	// 						console.log('end_hash_DB:', end_hash_db);
+	// 						console.log('end_hash_OC:', events[i].returnValues.end);
+	// 						if(begin_hash_db != events[i].returnValues.begin || end_hash_db != events[i].returnValues.end
+	// 							|| result.section[i].title != events[i].returnValues.title)
+	// 						{
+	// 							console.log('data in DB and on chain are inconsistent!');
+	// 							validated = 0;
+	// 							res.status(400);
+	// 							res.json('data in DB and on chain are inconsistent!');
+	// 							break;
+	// 						}
+	// 					}
+	// 					if(validated)
+	// 					{
+	// 						console.log('data in DB and on chain are consistent.');
+	// 						res.status(200);
+	// 						res.json(result.section);
+	// 					}
+	// 				}
+	// 				else
+	// 				{
+	// 					console.log("#section in DB and on chain isn't equal.");
+	// 					res.status(400);
+	// 					res.json("#section in DB and on chain isn't equal.");
+	// 				}
+	// 			}
+	// 			else
+	// 			{
+	// 				res.status(400);
+	// 				res.json("logno's section doesn't exist in DB");
+	// 			}
+	// 		})
+	// 		.catch((err) => {
+	// 			res.status(400);
+	// 			res.json(err);
+	// 		})
+	// 	}
+	// 	else
+	// 	{
+	// 		res.status(400);
+	// 		res.json("logno's section doesn't exist on chain");
+	// 	}
+	// })
+	// .catch((err) => console.error(err));
 });
 
 
@@ -684,10 +758,10 @@ router.route('/newfoodlogsection').post(async (req, res) => {
 	}
 
 	web3.eth.accounts.signTransaction(tx1, PRIVATE_KEY)
-	.then(signed => {
-		web3.eth.sendSignedTransaction(signed.rawTransaction)
-		.on('receipt', (receipt) => {
-			responce.push(receipt);
+	.then(signed1 => {
+		web3.eth.sendSignedTransaction(signed1.rawTransaction)
+		.on('receipt', (receipt1) => {
+			responce.push(receipt1);
 
 			var encoded_data2 = contract.methods.FoodLogImage(parseInt(req.query.logno), req.query.urlhash, req.query.filehash).encodeABI();
 			const accountNonce2 = '0x' + (web3.eth.getTransactionCount(ACCOUNT_ADDRESS) + 1).toString(16);
@@ -701,10 +775,11 @@ router.route('/newfoodlogsection').post(async (req, res) => {
 			}
 		
 			web3.eth.accounts.signTransaction(tx2, PRIVATE_KEY)
-			.then(signed => {
-				web3.eth.sendSignedTransaction(signed.rawTransaction)
-				.on('receipt', (receipt) => {
-					responce.push(receipt);
+			.then(signed2 => {
+				web3.eth.sendSignedTransaction(signed2.rawTransaction)
+				.on('receipt', (receipt2) => {
+					responce.push(receipt2);
+					console.log(receipt2)
 
 					Food.updateOne(
 						{ logno: parseInt(req.query.logno) }, 
@@ -713,36 +788,38 @@ router.route('/newfoodlogsection').post(async (req, res) => {
 							begin: req.query.begin,
 							end: req.query.end,
 							url: req.query.url,
+							urlhash: req.query.urlhash,
+							filehash: req.query.filehash
 						} } },
 						() => {
 							res.status(200);
-							console.log(responce);
+							// console.log(responce);
 							res.json(responce);
 						}
 					);
 				})
 				.catch((err) => {
 					res.status(400);
-					console.log(error);
-					res.json(error);
+					console.log(err);
+					res.json(err);
 				});
 			})
 			.catch((err) => {
 				res.status(400);
-				console.log(error);
-				res.json(error);
+				console.log(err);
+				res.json(err);
 			});
 		})
 		.catch((err) => {
 			res.status(400);
-			console.log(error);
-			res.json(error);
+			console.log(err);
+			res.json(err);
 		});
 	})
 	.catch((err) => {
 		res.status(400);
-		console.log(error);
-		res.json(error);
+		console.log(err);
+		res.json(err);
 	});
 });
 

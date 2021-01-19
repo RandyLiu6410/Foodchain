@@ -21,6 +21,9 @@ const foodSchema = new Schema({
       title: {type: String, require: true},
       begin: {type: String, require: true},
       end: {type: String, require: true},
+      url: {type: String, require: true},
+      urlhash: {type: String, require: true},
+      filehash : {type: String, require: true},
     }],
     },
     { timestamps: true }
