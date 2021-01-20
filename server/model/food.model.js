@@ -4,18 +4,10 @@ const Schema = mongoose.Schema;
 
 const foodSchema = new Schema({
     logno: {type: Number, require: true},
-    content: [{
-      logname: {type: String, require: true},
-      logorg: {type: String, require: true},
-    }],
-    image: [{
-      url: {type: String, require: true},
-      filehash : {type: String, require: true},
-    }],
-    item: [{
-      loghash: {type: String, require: true},
-      logdate: {type: String, require: true},
-    }],
+    logname: {type: String, require: true},
+    logorg: {type: String, require: true},
+    loghash: {type: String, require: true},
+    logdate: {type: String, require: true},
     section: [{
       // transactionhash: {type: String, require: true},
       title: {type: String, require: true},

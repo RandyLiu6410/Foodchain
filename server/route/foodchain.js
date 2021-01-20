@@ -545,14 +545,11 @@ router.route('/foodlog').post(async (req, res) => {
 		.on('receipt', (receipt) => {
 			const newFood = new Food({
 				logno: parseInt(req.query.logno),
-				content: [{
-					logname: req.query.logname,
-					logorg: req.query.logorg,
-				}],
-				item: [{
-					loghash: req.query.loghash,
-					logdate: req.query.logdate,
-				}],
+				logname: req.query.logname,
+				logorg: req.query.logorg,
+				loghash: req.query.loghash,
+				logdate: req.query.logdate,
+				section: []
 			});
 
 			Food.findOne({logno: parseInt(req.query.logno)})
