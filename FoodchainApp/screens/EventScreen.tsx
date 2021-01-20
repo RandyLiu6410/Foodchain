@@ -58,7 +58,7 @@ export default function EventScreen() {
       {
         section.section ?
         <View>
-          <Text style={styles.title}>{section.logname}</Text>
+          <Text style={styles.title}>{section.content[0].logname}</Text>
           <ScrollView>
           {
             section.section.map(s => {

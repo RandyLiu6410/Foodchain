@@ -372,78 +372,78 @@ router.route('/newfooditem').get((req, res) => {
 router.route('/newfoodsection').get(async (req, res) => {
 	//data on chain: events
 	try {
-		const foodsectionEvents = await contract.getPastEvents("FoodSection",
-		{                               
-			filter: {logno: req.query.logno},
-			fromBlock: req.query.START_BLOCK,     
-			toBlock: "latest"        
-		});
-		const foodimageEvents = await contract.getPastEvents("FoodImage",
-		{                               
-			filter: {logno: req.query.logno},
-			fromBlock: req.query.START_BLOCK,     
-			toBlock: "latest"        
-		});
+		// const foodsectionEvents = await contract.getPastEvents("FoodSection",
+		// {                               
+		// 	filter: {logno: req.query.logno},
+		// 	fromBlock: req.query.START_BLOCK,     
+		// 	toBlock: "latest"        
+		// });
+		// const foodimageEvents = await contract.getPastEvents("FoodImage",
+		// {                               
+		// 	filter: {logno: req.query.logno},
+		// 	fromBlock: req.query.START_BLOCK,     
+		// 	toBlock: "latest"        
+		// });
 
-		if(foodsectionEvents.length === 0 || foodimageEvents === 0) {
-			res.status(400);
-			res.json("logno's section doesn't exist on chain");
-			return;
-		}
+		// if(foodsectionEvents.length === 0 || foodimageEvents === 0) {
+		// 	res.status(400);
+		// 	res.json("logno's section doesn't exist on chain");
+		// 	return;
+		// }
 
 		const foodsectionDB = await Food.findOne({logno: parseInt(req.query.logno)});
-		console.log(foodsectionEvents.length)
+		res.json(foodsectionDB);
 
-		if(foodsectionDB.section.length !== 0) {
-			if(foodsectionEvents.length === foodsectionDB.section.length && foodimageEvents.length === foodsectionDB.section.length)
-			{
-				console.log("#section in DB and on chain is equal.");
-				var validated = 1;
-				for(var i = 0; i < events.length; i++)
-				{ 
-					const begin_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].begin).digest('hex');
-					const end_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].end).digest('hex');
-					const urlhash_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].urlhash).digest('hex');
-					const filehash_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].filehash).digest('hex');
-					console.log('title_DB:', foodsectionDB.section[i].title);
-					console.log('title_OC:', foodsectionEvents[i].returnValues.title);
-					console.log('begin_hash_DB:', begin_hash_db);
-					console.log('begin_hash_OC:', foodsectionEvents[i].returnValues.begin);
-					console.log('end_hash_DB:', end_hash_db);
-					console.log('end_hash_OC:', foodsectionEvents[i].returnValues.end);
-					console.log('urlhash_hash_db:', urlhash_hash_db);
-					console.log('urlhash_hash_OC:', foodimageEvents[i].returnValues.url);
-					console.log('filehash_hash_db:', filehash_hash_db);
-					console.log('filehash_hash_OC:', foodimageEvents[i].returnValues.filehash);
-					if(begin_hash_db != foodsectionEvents[i].returnValues.begin || end_hash_db != foodsectionEvents[i].returnValues.end
-						|| foodsectionDB.section[i].title != foodsectionEvents[i].returnValues.title || urlhash_hash_db != foodimageEvents[i].returnValues.url || filehash_hash_db != foodimageEvents[i].returnValues.filehash)
-					{
-						console.log('data in DB and on chain are inconsistent!');
-						validated = 0;
-						res.status(400);
-						res.json('data in DB and on chain are inconsistent!');
-						break;
-					}
-				}
-				if(validated)
-				{
-					console.log('data in DB and on chain are consistent.');
-					res.status(200);
-					res.json(result.section);
-				}
-			}
-			else
-			{
-				console.log("#section in DB and on chain isn't equal.");
-				res.status(400);
-				res.json("#section in DB and on chain isn't equal.");
-			}
-		}
-		else {
-			res.status(400);
-			res.json("logno's section doesn't exist in DB");
-			return;
-		}
+		// if(foodsectionDB.section.length !== 0) {
+		// 	if(foodsectionEvents.length === foodsectionDB.section.length && foodimageEvents.length === foodsectionDB.section.length)
+		// 	{
+		// 		console.log("#section in DB and on chain is equal.");
+		// 		var validated = 1;
+		// 		for(var i = 0; i < events.length; i++)
+		// 		{ 
+		// 			const begin_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].begin).digest('hex');
+		// 			const end_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].end).digest('hex');
+		// 			const urlhash_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].urlhash).digest('hex');
+		// 			const filehash_hash_db = '0x'+keccak('keccak256').update(foodsectionDB.section[i].filehash).digest('hex');
+		// 			console.log('title_DB:', foodsectionDB.section[i].title);
+		// 			console.log('title_OC:', foodsectionEvents[i].returnValues.title);
+		// 			console.log('begin_hash_DB:', begin_hash_db);
+		// 			console.log('begin_hash_OC:', foodsectionEvents[i].returnValues.begin);
+		// 			console.log('end_hash_DB:', end_hash_db);
+		// 			console.log('end_hash_OC:', foodsectionEvents[i].returnValues.end);
+		// 			console.log('urlhash_hash_db:', urlhash_hash_db);
+		// 			console.log('urlhash_hash_OC:', foodimageEvents[i].returnValues.url);
+		// 			console.log('filehash_hash_db:', filehash_hash_db);
+		// 			console.log('filehash_hash_OC:', foodimageEvents[i].returnValues.filehash);
+		// 			if(begin_hash_db != foodsectionEvents[i].returnValues.begin || end_hash_db != foodsectionEvents[i].returnValues.end
+		// 				|| foodsectionDB.section[i].title != foodsectionEvents[i].returnValues.title || urlhash_hash_db != foodimageEvents[i].returnValues.url || filehash_hash_db != foodimageEvents[i].returnValues.filehash)
+		// 			{
+		// 				console.log('data in DB and on chain are inconsistent!');
+		// 				validated = 0;
+		// 				res.status(400);
+		// 				res.json('data in DB and on chain are inconsistent!');
+		// 				break;
+		// 			}
+		// 		}
+		// 		if(validated)
+		// 		{
+		// 			console.log('data in DB and on chain are consistent.');
+		// 			res.status(200);
+		// 			res.json(foodsectionDB.section);
+		// 		}
+		// 	}
+		// 	else
+		// 	{
+		// 		console.log("#section in DB and on chain isn't equal.");
+		// 		res.status(400);
+		// 		res.json("#section in DB and on chain isn't equal.");
+		// 	}
+		// }
+		// else {
+		// 	res.status(400);
+		// 	res.json("logno's section doesn't exist in DB");
+		// 	return;
+		// }
 	}
 	catch (err) {
 		res.status(400);
